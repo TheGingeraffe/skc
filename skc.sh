@@ -14,4 +14,6 @@
 # Check if remote servers support Ed25519 keys?
 # Check if remote servers support password auth?
 
+# Audit connected servers? Edit ssh config file to best practices?
+
 # Store passphrase/key in Vault
