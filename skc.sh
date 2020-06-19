@@ -3,23 +3,19 @@
 
 ## Functions/Variables/Arrays
 
-testy="abc123"
-
-empty_var_check () {
-# -z "${var+x}" also catches var='', other solutions don't
-    for var in "$@"; do
-        echo $var
-        if [[ -z "${var+x}" ]]; then
-            echo "\${${var}} is unset!"
-        else
-            echo "\${${var}} is set to ${var}"
-        fi
-    done 
+# empty_var_check "$USER"
+empty_var_check() {
+    if [ -z "${1}" ]; then
+        echo "var is empty or null"
+        return 1
+    else
+        echo "var has content - ${1}"
+    fi
 }
 
 # Check for ssh-agent
 
-empty_var_check "$@"
+empty_var_check "${SSH_AUTH_SOCK}"
 
 # Check for added keys
 # start if not running
@@ -31,7 +27,7 @@ empty_var_check "$@"
 # private keys - 600
 # home dir - 750 (not writeable by group/others)
 # ~/.ssh/known_hosts - 600
-# ~/.ssh/authorized_keys - 600 
+# ~/.ssh/authorized_keys - 600
 
 # Check ~/.ssh/known_hosts?
 
