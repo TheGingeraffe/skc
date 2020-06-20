@@ -3,19 +3,59 @@
 
 ## Functions/Variables/Arrays
 
-# empty_var_check "$USER"
-empty_var_check() {
-    if [ -z "${1}" ]; then
-        echo "var is empty or null"
-        return 1
-    else
-        echo "var has content - ${1}"
-    fi
+## General purpose confirmation
+## Allows a set number of attempts
+confirm() {
+
+	conf_msg="${1}"
+	invld_msg="${2}"
+
+	attempts="3"
+	counter="0"
+
+	while [[ ${counter} -lt ${attempts} ]]; do
+		read -r -n 1 -p "${conf_msg:-Continue?} [y/n]: " REPLY
+		case ${REPLY} in
+		[yY])
+			echo
+			return 0
+			;;
+		[nN])
+			echo
+			return 1
+			;;
+		*)
+			printf " \033[31m %s \n\033[0m" "${invld_msg:-invalid input}"
+			;;
+		esac
+		counter="$((counter + 1))"
+	done
+
 }
 
-# Check for ssh-agent
+# empty_var_check "USER"
+empty_var_check() {
+	for var in "${@}"; do
+    	if [[ -v "${var}" ]]; then
+		echo "${var} is set!"
+        return 1
+    else
+        echo "${var} is not set!"
+    fi
+	done
+}
 
-empty_var_check "${SSH_AUTH_SOCK}"
+# Check for running ssh-agent and start if desired
+
+empty_var_check SSH_AUTH_SOCK
+
+if [[ $? -eq 0 ]]; then
+  confirm "ssh-agent not running / \$SSH_AUTH_SOCK is empty! Would you like to start ssh-agent?"
+  if [[ $? -eq 0 ]]; then
+    agent_pid="$(echo $(eval $(ssh-agent)) | cut -f3 -d' ')"
+  fi
+fi
+echo $agent_pid
 
 # Check for added keys
 # start if not running
