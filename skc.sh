@@ -81,6 +81,10 @@ ssh_key_manage() {
 	ssh-copy-id -i "/home/${USER}/.ssh/${3:-$1@$2}.key.pub" "${1}@${2}"
 }
 
+# if [[ $# = 0]]; then
+# set some arguments
+# fi
+
 # home dir - 750 (not writeable by group/others)
 
 perm_check "/home/${USER}" "750"
@@ -145,3 +149,5 @@ fi
 
 # ssh-add -l
 # Check for keys in /home/${USER}/.ssh that are not added to agent and ask to add
+
+## TODO split into main.sh/common.sh/etc.
