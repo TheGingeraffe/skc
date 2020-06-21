@@ -106,23 +106,12 @@ perm_check "/home/${USER}/.ssh/authorized_keys" "600"
 perm_check "/home/${USER}/.ssh/config" "600"
 
 # TODO Check if keys in ssh config exist?
-
-# TODO Check ~/.ssh/known_hosts?
-# See if hosts already exist for keys that exist/will be generated
-
 # TODO Check ~/.ssh/authorized_keys?
 # Check for rsa/other weak stuff and replace with ed25519
-
-# Check if remote servers support Ed25519 keys?
-# Check if remote servers support password auth?
-
-# Audit connected servers? Edit ssh config file to best practices?
-
-# Store passphrase/key in Vault
+# TODO Check if remote servers support Ed25519 keys?
 
 # Check for running ssh-agent
-
-# empty_var_check SSH_AUTH_SOCK
+empty_var_check SSH_AUTH_SOCK
 
 # Asks to start ssh-agent if $SSH_AUTH_SOCK unset
 
@@ -136,5 +125,5 @@ if [[ $? -eq 0 ]]; then
 	agent_pid="$(echo $(eval $(ssh-agent)) | cut -f3 -d' ')"
 fi
 
-# Check for added keys
-# add created keys to agent
+# ssh-add -l
+# Check for keys in /home/${USER}/.ssh that are not added to agent and ask to add
