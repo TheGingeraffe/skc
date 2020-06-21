@@ -61,9 +61,10 @@ perm_check() {
 	if [[ "${permission_var}" = "${2}" ]]; then
 		echo "Permissions for ${1} are correctly set to ${permission_var}!"
 	else
-		echo "Permissions for ${1} are ${permission_var} when they should be ${2}!"
-		return 1
-
+		confirm "Permissions for ${1} are ${permission_var} when they should be ${2}! Would you like to modify permissions?"
+		if [[ $? -eq 0 ]]; then
+			chmod ${2} ${1}
+		fi
 	fi
 }
 
