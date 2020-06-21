@@ -100,13 +100,18 @@ perm_check "/home/${USER}/.ssh/known_hosts" "600"
 
 perm_check "/home/${USER}/.ssh/authorized_keys" "600"
 
-# Check ~/.ssh/known_hosts?
+# ~/.ssh/config - 600
+# Readable/writable only to user
 
-# Check ~/.ssh/authorized_keys?
+perm_check "/home/${USER}/.ssh/config" "600"
 
-# Point at a config file?
+# TODO Check if keys in ssh config exist?
 
-# Check if keys in ssh config exist?
+# TODO Check ~/.ssh/known_hosts?
+# See if hosts already exist for keys that exist/will be generated
+
+# TODO Check ~/.ssh/authorized_keys?
+# Check for rsa/other weak stuff and replace with ed25519
 
 # Check if remote servers support Ed25519 keys?
 # Check if remote servers support password auth?
