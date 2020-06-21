@@ -67,6 +67,19 @@ perm_check() {
 	fi
 }
 
+## ssh-keygen wrapper
+## creates an ed25519 keypair with some args then attempts to copy it over
+# ssh_key_manage <remote_user> <host/IP> <optional keyname>
+
+ssh_key_manage() {
+	if [[ -e /home/${USER}/.ssh/${3:-$1@$2}.key ]]; then
+		echo "/home/${USER}/.ssh/${3:-$1@$2}.key already exists!"
+		return 1
+	fi
+	ssh-keygen -t ed25519 -q -N "" -f "/home/${USER}/.ssh/${3:-$1@$2}.key"
+	ssh-copy-id -i "/home/${USER}/.ssh/${3:-$1@$2}.key.pub" "${1}@${2}"
+}
+
 # home dir - 750 (not writeable by group/others)
 
 perm_check "/home/${USER}" "750"
@@ -109,6 +122,10 @@ perm_check "/home/${USER}/.ssh/config" "600"
 # TODO Check ~/.ssh/authorized_keys?
 # Check for rsa/other weak stuff and replace with ed25519
 # TODO Check if remote servers support Ed25519 keys?
+
+# ssh_key_manage <user> <host/IP> <optional keyname>
+
+# ssh_key_manage "$@"
 
 # Check for running ssh-agent
 empty_var_check SSH_AUTH_SOCK
