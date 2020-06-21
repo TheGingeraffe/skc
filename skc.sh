@@ -38,49 +38,67 @@ confirm() {
 # usage: empty_var_check "USER"
 empty_var_check() {
 	for var in "${@}"; do
-    	if [[ -v "${var}" ]]; then
-		echo "${var} is set!"
-        return 1
-    else
-        echo "${var} is not set!"
-    fi
+		if [[ -v "${var}" ]]; then
+			echo "${var} is set!"
+			return 1
+		else
+			echo "${var} is not set!"
+		fi
 	done
 }
-
-# Tests for existence
-
 
 # Checks a file or dir permissions
-
+# Usage: perm_check <file or dir> <octal permissions>
 perm_check() {
-	for arg in "${@}"; do
-	  permission_var="$(stat -c "%a" "${arg}")"
-	  echo ${permission_var}
-	done
+	# Checks for existence before storing current permissions and returns 1 if check fails
+	if [[ -e ${1} ]]; then
+		permission_var="$(stat -c "%a" "${1}")"
+	else
+		echo "${1} does not exist or is not readable!"
+		return 1
+	fi
 
+	if [[ "${permission_var}" = "${2}" ]]; then
+		echo "Permissions for ${1} are correctly set to ${permission_var}!"
+	else
+		echo "Permissions for ${1} are ${permission_var} when they should be ${2}!"
+		return 1
+
+	fi
 }
 
-perm_check "$@"
+# home dir - 750 (not writeable by group/others)
+
+perm_check "/home/${USER}" "750"
 
 # Check permissions on .ssh dir and contents
-# .ssh - 700 or 755?
+# .ssh - 700
 
-if [[ -d "/home/${USER}/.ssh" ]]; then
-	perm_check "/home/${USER}/.ssh"
-	if [[ ! "${permission_var}" = "755" ]]; then
-	echo "Permissions for /home/${USER}/.ssh are not 755!"
-	fi
-else
-	echo "/home/${USER}/.ssh does not exist or is not readable!"
-fi
+perm_check "/home/${USER}/.ssh" "700"
 
 # .pub keys - 644
+# Readable by all
+
+for pub_key in $(find /home/${USER}/.ssh -type f -iname '*.key.pub'); do
+	perm_check "${pub_key}" "644"
+done
+
 # private keys - 600
-# home dir - 750 (not writeable by group/others)
+# Readable/writable only to user
+
+for priv_key in $(find /home/${USER}/.ssh -type f -iname '*.key'); do
+	perm_check "${priv_key}" "600"
+done
+
 # ~/.ssh/known_hosts - 600
+# Readable/writable only to user
+
+perm_check "/home/${USER}/.ssh/known_hosts" "600"
+
 # ~/.ssh/authorized_keys - 600
+# Readable/writable only to user
 
-
+perm_check "/home/${USER}/.ssh/authorized_keys" "600"
 
 # Check ~/.ssh/known_hosts?
 
@@ -97,7 +115,6 @@ fi
 
 # Store passphrase/key in Vault
 
-
 # Check for running ssh-agent
 
 # empty_var_check SSH_AUTH_SOCK
@@ -105,13 +122,13 @@ fi
 # Asks to start ssh-agent if $SSH_AUTH_SOCK unset
 
 if [[ $? -eq 0 ]]; then
-  confirm "ssh-agent not running / \$SSH_AUTH_SOCK is empty! Would you like to start ssh-agent?"
-fi  
+	confirm "ssh-agent not running / \$SSH_AUTH_SOCK is empty! Would you like to start ssh-agent?"
+fi
 
 # Starts ssh-agent and stores PID
 
 if [[ $? -eq 0 ]]; then
-  agent_pid="$(echo $(eval $(ssh-agent)) | cut -f3 -d' ')"
+	agent_pid="$(echo $(eval $(ssh-agent)) | cut -f3 -d' ')"
 fi
 
 # Check for added keys
